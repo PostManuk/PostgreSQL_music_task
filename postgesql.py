@@ -39,6 +39,10 @@ with conn.cursor() as cur:
     #2 Добавить нового клиента
     def insert_client(cur, name=None, last_name=None, email=None, tel = None ):
         cur.execute("""
+        	                INSERT INTO clients(name, last_name, email)
+        	                VALUES (%s, %s, %s);
+        	                """, (name, last_name, email))
+        cur.execute("""
                 SELECT id from clients
                 ORDER BY id DESC
                 LIMIT 1
@@ -77,7 +81,7 @@ with conn.cursor() as cur:
     # 5 Функция, позволяющая удалить телефон для существующего клиента.
     def delete_phone(cur, phone_number):
         cur.execute("""
-            DELETE FROM numbers 
+            DELETE FROM numbers
             WHERE phone_number = %s
             """, (phone_number,))
         return f'Номер телефона {phone_number} был удален'
@@ -89,7 +93,7 @@ with conn.cursor() as cur:
             WHERE client_id = %s
             """, (id,))
         cur.execute("""
-            DELETE FROM clients 
+            DELETE FROM clients
             WHERE id = %s
            """, (id,))
         return  f'Владелец с id {id} был удален'
