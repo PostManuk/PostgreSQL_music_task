@@ -16,11 +16,13 @@ GROUP BY album_name;
 
 
 --4 Исполнители,которые НЕ выпустили альбомы в 2020г
-SELECT name_artist FROM artists a
+SELECT DISTINCT name_artist FROM artists a2 
+JOIN album_artists aa ON a2.id = aa.artist_id 
+JOIN albums a3 ON a3.id = aa.album_id 
+WHERE name_artist NOT IN (SELECT name_artist FROM artists a
 JOIN album_artists b ON b.artist_id= a.id 
 JOIN albums c on c.id = b.album_id
-WHERE year_of_release != 2020
-GROUP BY name_artist;
+WHERE year_of_release = 2020);
 
 
 
@@ -59,19 +61,13 @@ WHERE duration_sec = (SELECT MIN(duration_sec) FROM audio_tracks);
 
 
 
---В 9 пункте если ставить лимит на первую строку  по count ,
--- может получиться ситуация когда песен в альбом одинаковое кол-во(как у меня)
-
-
---9  название альбомов, содержащих наименьшее количество треков (с COUNT) по возрастанию
-SELECT album_name, count(album_name) AS count_tracks  FROM  audio_tracks at2
-LEFT JOIN albums a on a.id = at2.album_id
-GROUP BY album_name
-ORDER BY count(album_name);
-
---9 название альбомов, содержащих наименьшее количество треков с лимитом
-SELECT album_name,count(album_name) AS count_tracks  FROM  audio_tracks at2
-LEFT JOIN albums a on a.id = at2.album_id
-GROUP BY album_name
-ORDER BY count(album_name)
-LIMIT 3;
+--9  название альбомов, содержащих наименьшее количество треков (с COUNT)
+SELECT album_name, count(audio_tracks.album_id) FROM albums
+JOIN audio_tracks ON albums.id = audio_tracks.album_id
+GROUP BY albums.id
+HAVING COUNT(audio_tracks.track_name) = (SELECT COUNT(audio_tracks.track_name) FROM albums
+JOIN audio_tracks ON albums.id = audio_tracks.album_id
+GROUP BY albums.id
+ORDER BY COUNT(audio_tracks.track_name) 
+LIMIT 1)
+ORDER BY album_name;
